@@ -38,10 +38,20 @@ def main():
     yaws = []
     node.create_subscription(Odometry, '/deadreckon/odom',
                              lambda m: yaws.append(yaw_from_quat(m.pose.pose.orientation)), 50)
-    t_end = time.monotonic() + a.seconds
-    t_give_up = time.monotonic() + a.seconds + 10.0
-    while time.monotonic() < t_end or (not yaws and time.monotonic() < t_give_up):
+    # the window starts at the first message: connecting to the topic takes a second or two,
+    # which used to eat most of a window started at launch (only 4 headings in 3 s)
+    t_give_up = time.monotonic() + 10.0
+    t_end = None
+    while True:
         rclpy.spin_once(node, timeout_sec=0.1)
+        now = time.monotonic()
+        if t_end is None:
+            if yaws:
+                t_end = now + a.seconds
+            elif now > t_give_up:
+                break
+        elif now >= t_end:
+            break
     node.destroy_node()
     rclpy.shutdown()
     if len(yaws) < 5:
