@@ -53,16 +53,14 @@ Place the ROV on its start mark, nose along the course. Arm with `a` in Terminal
 | `pursuit` | pure pursuit | `rect` | 2.0 m ahead, 0.6 m left, back. Two laps |
 | `los` | line-of-sight | | |
 | `ilos` | integral line-of-sight | | |
+| `alos` | adaptive line-of-sight | | |
+| `smc` | sliding-mode heading | | |
 | `fuzzy_lab` | the lab's fuzzy tracker | | |
 
 It resets dead reckoning, records a bag, runs, and stops by itself. Output: `runs/<name>/`.
-Shorter pipe: `LINE_LENGTH=1.8 ./run_one.sh los line 1`. Different depth: `DEPTH=-0.4 ...`.
+Shorter pipe: `LINE_LENGTH=1.8 ./run_one.sh los line 1`. Depth: do the surface depth check in INSTRUCTIONS.md first, then `export DEPTH=<reading - 0.5>`.
 
-Suggested order, whole list once per repeat:
-```
-line:  los  p  fuzzy_lab  pursuit  ilos     (rep 1, 2, 3)
-rect:  p  pursuit  los  ilos  fuzzy_lab     (rep 1, 2)
-```
+Run order: use the exact 42-run list in INSTRUCTIONS.md (pre-registered, randomized).
 Afterwards: `python3 score_runs.py runs/`
 
 ## LLM pilot (optional, needs internet)
@@ -90,7 +88,7 @@ For stages 2 and 3 run Terminal B with `--max-run 300 --fence=-0.6,3.0,-0.8,0.8`
 |---|---|
 | `cmdvel_to_manual.py` | velocity command to stick command. Arm, stop, jog, limits, geofence |
 | `course_runner.py` | runs one steering law on `/deadreckon/odom`, publishes `/cmd_vel` |
-| `tracker.py` | the five steering laws and the course logic. No ROS |
+| `tracker.py` | the seven steering laws (p, smc, pursuit, los, ilos, alos, fuzzy_lab) and the course logic. No ROS |
 | `run_one.sh` | one recorded run: reset, bag, run, stop |
 | `llm_pilot.py` | camera frame to model to one small action, step by step |
 | `score_runs.py` | time, path length and tracking error per run |
