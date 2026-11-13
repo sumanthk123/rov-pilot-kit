@@ -9,7 +9,7 @@
 # sent below, so the vehicle must be floating freely when this script starts.
 # Start-up (--init, 2026-11-12): before the course the runner sinks to DEPTH and turns on
 # the spot to the saved course heading (theta = 0, at the back wall; save it once with
-# `python3 save_heading.py --course rect|line`). The course starts only when the depth
+# `python3 save_heading.py`, one heading for both courses). The course starts only when the depth
 # sensor (within 5 cm) and the heading (within 6 deg) both hold for 1.0 s.
 # If it cannot settle in 45 s nothing runs and the folder is renamed *_ABORTED_<time>,
 # so the same command can simply be run again.
@@ -29,7 +29,7 @@ ros2 bag record -o "$OUT/bag" $TOPICS > "$OUT/bag.log" 2>&1 &
 BAG=$!
 sleep 3
 DEPTH=${DEPTH:--0.5}
-echo "=== $TAG: start-up: sinking to $DEPTH m (less if the floor is closer than 0.30 m below that) and turning to the saved $COURSE heading ==="
+echo "=== $TAG: start-up: sinking to $DEPTH m (less if the floor is closer than 0.30 m below that) and turning to the saved heading ==="
 RC=0
 python3 "$HERE/course_runner.py" --law "$LAW" --course "$COURSE" --name "$TAG" \
     --depth-target "$DEPTH" --init --line-length "${LINE_LENGTH:-2.4}" --log "$OUT/runner.csv" || RC=$?

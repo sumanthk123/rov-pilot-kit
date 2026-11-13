@@ -30,7 +30,8 @@ in depth_gate.json next to the log. Nothing changes without the flag.
 --init (real vehicle, replaces --dive-first): a repeatable start for every run.
 (1) refuses to start unless depth reads ~0 (vehicle floating, reset done); (2) sinks to
 --depth-target and at the same time turns on the spot to the saved course heading
-(theta = 0, pointing at the back wall; saved with save_heading.py into heading_ref.json);
+(theta = 0, pointing at the back wall, one heading for both courses; saved with
+save_heading.py into heading_ref.json);
 (3) starts the course only when depth is within --settle-tol AND heading within
 --heading-tol, both continuously for --init-hold seconds; (4) lays the course out from
 that position with its x axis exactly on the saved heading, and tells the stick
@@ -141,14 +142,15 @@ def heading_cmd(target, yaw, gain=1.0, cap=0.4):
     return max(-cap, min(cap, gain * wrap(target - yaw)))
 
 
-def load_heading(path, course):
-    """Saved course heading (rad, estimator frame) from save_heading.py's file."""
+def load_heading(path, course=None):
+    """The saved heading (rad, estimator frame) from save_heading.py's file. One heading,
+    theta = 0 at the back wall, is shared by both courses."""
     try:
         with open(path) as f:
-            ref = json.load(f)[course]
+            ref = json.load(f)['heading']
     except (OSError, KeyError, ValueError):
-        raise SystemExit(f'no saved heading for course "{course}" in {path}. Point the ROV at the '
-                         f'back wall and run:  python3 save_heading.py --course {course}')
+        raise SystemExit(f'no saved heading in {path}. Point the ROV at the back wall and run:  '
+                         'python3 save_heading.py')
     return float(ref['yaw_rad'])
 
 
