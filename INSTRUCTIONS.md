@@ -23,57 +23,67 @@ thrusters immediately.
 
 ## Step 1. Get the code (first time only)
 
-If you use Docker (the usual lab setup), on the laptop, not inside the container:
+In a normal terminal on the laptop:
 ```bash
 cd <path to>/BlueROV-Tools
-git clone https://github.com/sumanthk123/rov-pilot-kit.git pilot_kit
+git clone -b confirmatory-session https://github.com/sumanthk123/rov-pilot-kit.git pilot_kit
 echo pilot_kit/ >> .git/info/exclude
 ```
 Already have it? Update it instead:
 ```bash
 cd <path to>/BlueROV-Tools/pilot_kit && git pull
 ```
+Not sure where BlueROV-Tools is? It is usually `~/ros2_ws/src/BlueROV-Tools`. Go into it
+and type `pwd` to see its full path.
+
+---
+
+## How to open a ROS 2 terminal
+
+You need four of these (one for the GUI, three for Terminals A, B, C). Open each the
+way you normally do for the lab GUI. On the lab laptop ROS 2 is installed directly (no
+Docker), so in each new terminal:
+```bash
+source /opt/ros/jazzy/setup.bash        # if `ls /opt/ros` shows humble instead, use humble
+source ~/ros2_ws/install/setup.bash
+cd <path to>/BlueROV-Tools/pilot_kit
+python3 -c "import rclpy, pymavlink; print('ok')"      # must print ok
+```
+If `~/ros2_ws/install/setup.bash` does not exist, the lab workspace has not been built:
+`cd ~/ros2_ws && colcon build` once, then try again. (Docker setups instead use
+`docker/scripts/ros2-shell.sh` from the BlueROV-Tools folder.)
 
 ---
 
 ## Step 2. Start the vehicle
 
 1. Power on the ROV. Wait for BlueOS to come up.
-2. On the laptop (a normal terminal, NOT inside Docker), start the container and build.
-   Run `pwd` inside your BlueROV-Tools folder once to get its path:
+2. In your first ROS 2 terminal, start the lab GUI:
    ```bash
-   cd <path to>/BlueROV-Tools
-   docker/scripts/ros2-start.sh
-   docker/scripts/ros2-build-workspace.sh
-   ```
-   The build only needs re-running after a `git pull` of BlueROV-Tools.
-3. Open a shell inside the container and start the lab GUI:
-   ```bash
-   docker/scripts/ros2-shell.sh
    ros2 run bluerov_gui bluerov_gui
    ```
-4. Go to the **Launch** tab and click **Launch All**. Wait until MAVROS, DVL Driver and
+3. Go to the **Launch** tab and click **Launch All**. Wait until MAVROS, DVL Driver and
    Camera show as alive.
-5. In the same tab, **stop "Dead Reckoning"** (and "EKF Odometry" if it is running).
+4. In the same tab, **stop "Dead Reckoning"** (and "EKF Odometry" if it is running).
    You will start it yourself in Step 3.
-6. **Do NOT click "Connect" in the Teleop panel.** If it is already connected,
+5. **Do NOT click "Connect" in the Teleop panel.** If it is already connected,
    disconnect it. It fights with our code for control of the ROV.
-7. Check the ROV is in **MANUAL** mode.
+6. Check the ROV is in **MANUAL** mode.
 
 ---
 
-## Step 3. Open three terminals
+## Step 3. Open three more ROS 2 terminals
 
-Open three more terminals on the laptop. Run this in each (the first line is on the
-laptop, the rest are inside the container):
-```bash
-cd <path to>/BlueROV-Tools && docker/scripts/ros2-shell.sh
-cd /workspaces/ros2_ws/src/BlueROV-Tools/pilot_kit
-```
+Open them as described in "How to open a ROS 2 terminal" above.
 
 **Terminal A: position tracking.** Paste this and leave it running:
 ```bash
 ros2 run bluerov_dr dead_reckon --ros-args -p estimator_mode:=legacy_integrator
+```
+Check it from Terminal C:
+```bash
+ros2 param get /dvl_dead_reckon estimator_mode     # must say legacy_integrator
+ros2 topic hz /deadreckon/odom                     # must show messages arriving (Ctrl-C to stop)
 ```
 
 **Terminal B: control and emergency stop.** For the **rectangle** runs:
