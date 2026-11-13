@@ -58,7 +58,7 @@ Place the ROV on its start mark, nose along the course. Arm with `a` in Terminal
 | `fuzzy_lab` | the lab's fuzzy tracker | | |
 
 It resets dead reckoning, records a bag, runs, and stops by itself. Output: `runs/<name>/`.
-Shorter pipe: `LINE_LENGTH=1.8 ./run_one.sh los line 1`. Depth: do the surface depth check in INSTRUCTIONS.md first, then `export DEPTH=<reading - 0.5>`.
+Shorter pipe: `LINE_LENGTH=1.8 ./run_one.sh los line 1`. Depth: start each run with the ROV floating freely; it sinks to 0.5 m, confirms it with the depth sensor, then drives (INSTRUCTIONS.md Step 5).
 
 Run order: use the exact 42-run list in INSTRUCTIONS.md (pre-registered, randomized).
 Afterwards: `python3 score_runs.py runs/`
