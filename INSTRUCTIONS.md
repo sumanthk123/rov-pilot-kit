@@ -39,26 +39,35 @@ cd <path to>/BlueROV-Tools/pilot_kit && git pull
 ## Step 2. Start the vehicle
 
 1. Power on the ROV. Wait for BlueOS to come up.
-2. Open the lab GUI:
+2. On the laptop (a normal terminal, NOT inside Docker), start the container and build.
+   Run `pwd` inside your BlueROV-Tools folder once to get its path:
    ```bash
+   cd <path to>/BlueROV-Tools
+   docker/scripts/ros2-start.sh
+   docker/scripts/ros2-build-workspace.sh
+   ```
+   The build only needs re-running after a `git pull` of BlueROV-Tools.
+3. Open a shell inside the container and start the lab GUI:
+   ```bash
+   docker/scripts/ros2-shell.sh
    ros2 run bluerov_gui bluerov_gui
    ```
-3. Go to the **Launch** tab and click **Launch All**. Wait until MAVROS, DVL Driver and
+4. Go to the **Launch** tab and click **Launch All**. Wait until MAVROS, DVL Driver and
    Camera show as alive.
-4. In the same tab, **stop "Dead Reckoning"** (and "EKF Odometry" if it is running).
+5. In the same tab, **stop "Dead Reckoning"** (and "EKF Odometry" if it is running).
    You will start it yourself in Step 3.
-5. **Do NOT click "Connect" in the Teleop panel.** If it is already connected,
+6. **Do NOT click "Connect" in the Teleop panel.** If it is already connected,
    disconnect it. It fights with our code for control of the ROV.
-6. Check the ROV is in **MANUAL** mode.
+7. Check the ROV is in **MANUAL** mode.
 
 ---
 
 ## Step 3. Open three terminals
 
-Open three ROS 2 terminals the way you normally do. With Docker, run this in each:
+Open three more terminals on the laptop. Run this in each (the first line is on the
+laptop, the rest are inside the container):
 ```bash
-docker/scripts/ros2-shell.sh
-source /workspaces/ros2_ws/install/setup.bash
+cd <path to>/BlueROV-Tools && docker/scripts/ros2-shell.sh
 cd /workspaces/ros2_ws/src/BlueROV-Tools/pilot_kit
 ```
 
